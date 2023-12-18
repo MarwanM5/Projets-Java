@@ -1,0 +1,55 @@
+    public void runTests(Class<?> object) {
+        try {
+            Object instance = object.getDeclaredConstructor().newInstance();
+            Method[] methods = object.getDeclaredMethods();
+
+            List<Method> beforesClass = new ArrayList<>();
+            List<Method> befores = new ArrayList<>();
+            List<Method> tests = new ArrayList<>();
+            List<Method> afters = new ArrayList<>();
+            List<Method> aftersClass = new ArrayList<>();
+
+            for (Method method : methods) {
+                if (method.isAnnotationPresent(BeforeClass.class)) {
+                    beforesClass.add(method);
+                } else if (method.isAnnotationPresent(Before.class)) {
+                    befores.add(method);
+                } else if (method.isAnnotationPresent(Test.class)) {
+                    tests.add(method);
+                } else if (method.isAnnotationPresent(After.class)) {
+                    afters.add(method);
+                } else if (method.isAnnotationPresent(AfterClass.class)) {
+                    aftersClass.add(method);
+                }
+            }
+
+            for (Method beforeClass : beforesClass) {
+                beforeClass.invoke(instance);
+            }
+
+            for (Method test : tests) {
+                for (Method before : befores) {
+                    before.invoke(instance);
+                }
+
+                if (test.isAnnotationPresent(Test.class)) {
+                    Test aTest = test.getAnnotation(Test.class);
+                    if (aTest.enabled()) {
+                        System.out.println(aTest.name());
+                        test.invoke(instance);
+                    }
+                }
+
+                for (Method after : afters) {
+                    after.invoke(instance);
+                }
+            }
+
+            for (Method afterClass : aftersClass) {
+                afterClass.invoke(instance);
+            }
+
+        } catch (Exception e) {
+
+        }
+    }
