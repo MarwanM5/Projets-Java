@@ -1,2 +1,2 @@
 # Projets-Java
-Projets réalisés en pré-formation
+Projets Java axés sur la Programmation Orientée Objet.
